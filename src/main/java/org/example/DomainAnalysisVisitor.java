@@ -1,19 +1,22 @@
 package org.example;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
-record ClassRow(String clsName, int parentIdx, List<MemberRow> members){
+record ClassRow(String clsName, int parentIdx, List<MemberRow> members) {
     public ClassRow(String clsName, int parentIdx) {
         this(clsName, parentIdx, new ArrayList<>());
     }
 
-    public ClassRow(String clsName) {
-        this(clsName, -1);
+    public void addMember(MemberRow memberRow) {
+        for (var m : members) {
+            if (Arrays.equals(m.signature(), memberRow.signature())) {
+                throw new RuntimeException(m.kind() + " with signature '" + Arrays.toString(memberRow.signature()) + "' already defined");
+            }
+        }
+
+        members.add(memberRow);
     }
 }
 
@@ -81,6 +84,32 @@ record MemberRow(String name, String[] signature, String returnType, MemberKind 
                  List<FormalParameterRow> formalParams, List<LocalVarsRow> locals) {
     public MemberRow(String name, String[] signature, String returnType, MemberKind kind) {
         this(name, signature, returnType, kind, new ArrayList<>(), new ArrayList<>());
+    }
+
+    public void addLocal(LocalVarsRow local) {
+        for (var v : locals) {
+            if (v.name().equals(local.name())) {
+                throw new RuntimeException("Variable with name '" + local.name() + "' already defined");
+            }
+        }
+
+        for (var v : formalParams) {
+            if (v.name().equals(local.name())) {
+                throw new RuntimeException("Param with name '" + local.name() + "' already defined");
+            }
+        }
+
+        locals.add(local);
+    }
+
+    public void addFormalParam(FormalParameterRow param) {
+        for (var v : formalParams) {
+            if (v.name().equals(param.name())) {
+                throw new RuntimeException("Param with name '" + param.name() + "' already defined");
+            }
+        }
+
+        formalParams.add(param);
     }
 
     @Override
@@ -179,7 +208,7 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
         int typeIdx = findType(name);
         // primitives
         if (typeIdx < 5 && typeIdx > 0) {
-           return;
+            return;
         }
 
         int parentIdx = findClass(parent);
@@ -195,6 +224,10 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
                 classTable.set(clsIdx, new ClassRow(cls.clsName(), parentIdx, cls.members()));
             }
         }
+    }
+
+    private void addLocal(List<LocalVarsRow> locals, LocalVarsRow local) {
+
     }
 
     private void addType(String name) {
@@ -217,13 +250,34 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
         return visit((SimpleNode) node, data);
     }
 
+    private void checkCycles(int idx, ClassRow row) {
+        var visited = new HashSet<Integer>();
+        while (row.parentIdx() != -1) {
+            visited.add(idx);
+            idx = row.parentIdx();
+            row = classTable.get(idx);
+            if (visited.contains(idx)) {
+                throw new RuntimeException("Cyclic inheritance for class '" + row.clsName() + "'");
+            }
+            visited.add(idx);
+        }
+    }
+
     @Override
     public Object visit(ASTClassDecl node, Object data) {
         var parent = Objects.requireNonNullElse(node.parent, "Object");
+        int idx = findClass(node.name);
+        if (idx >= 0 && classTable.get(idx).parentIdx() != -1) {
+            throw new RuntimeException("Class with name '" + node.name + "' already defined");
+        }
+
         addType(node.name, parent);
-        var classRow = classTable.get(findClass(node.name));
+        idx = findClass(node.name);
+        var classRow = classTable.get(idx);
+        checkCycles(idx, classRow);
+
         for (var field : node.fields) {
-            classRow.members().add(
+            classRow.addMember(
                     new MemberRow(
                             field.name,
                             new String[]{field.name},
@@ -247,13 +301,13 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
             while (typesIt.hasNext() && namesIt.hasNext()) {
                 var type = typesIt.next();
                 var name = namesIt.next();
-                memberRow.formalParams().add(new FormalParameterRow(name, new String[]{name}, type));
+                memberRow.addFormalParam(new FormalParameterRow(name, new String[]{name}, type));
             }
 
             for (var local : method.locals) {
-                memberRow.locals().add(new LocalVarsRow(local.name, new String[]{local.name}, local.typeNode.name));
+                memberRow.addLocal(new LocalVarsRow(local.name, new String[]{local.name}, local.typeNode.name));
             }
-            classRow.members().add(memberRow);
+            classRow.addMember(memberRow);
         }
         return visit((SimpleNode) node, data);
     }

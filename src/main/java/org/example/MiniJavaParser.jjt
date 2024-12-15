@@ -219,17 +219,17 @@ void FormalList(List types, List params):
 {
     type = Type() { types.add(type); }
     <ID> { params.add(token.image); }
-    (FormalRest(types))*
+    (FormalRest(types, params))*
 }
 
-void FormalRest(List types):
+void FormalRest(List types, List params):
 {
     ASTType type;
 }
 {
     ","
     type = Type() { types.add(type); }
-    <ID>
+    <ID> { params.add(token.image); }
 }
 
 ASTType Type() #Type:

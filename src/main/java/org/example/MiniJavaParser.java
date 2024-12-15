@@ -444,15 +444,16 @@ params.add(token.image);
         jj_la1[9] = jj_gen;
         break label_10;
       }
-      FormalRest(types);
+      FormalRest(types, params);
     }
 }
 
-  static final public void FormalRest(List types) throws ParseException {ASTType type;
+  static final public void FormalRest(List types, List params) throws ParseException {ASTType type;
     jj_consume_token(36);
     type = Type();
 types.add(type);
     jj_consume_token(ID);
+params.add(token.image);
 }
 
   static final public ASTType Type() throws ParseException {/*@bgen(jjtree) Type */

@@ -24,8 +24,77 @@ public class MiniJavaParserDefaultVisitor implements MiniJavaParserVisitor{
   public Object visit(ASTMethodDecl node, Object data){
     return defaultVisit(node, data);
   }
+  public Object visit(ASTFormalList node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTFormalRest node, Object data){
+    return defaultVisit(node, data);
+  }
   public Object visit(ASTType node, Object data){
     return defaultVisit(node, data);
   }
+  public Object visit(ASTStatement node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExp node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTCondition node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpLog node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpLog2 node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTOpLog node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpRel node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTOpRel node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpArm node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpArm2 node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTOpAd node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpTerm node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpTerm2 node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTOpMul node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpFact node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTAccess node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTCall node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTCall2 node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTCallTarget node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpList node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTExpRest node, Object data){
+    return defaultVisit(node, data);
+  }
 }
-/* JavaCC - OriginalChecksum=154f2e37c655e5ccca4665515d8503fa (do not edit this line) */
+/* JavaCC - OriginalChecksum=8c46541509af889d78f3e394007250f1 (do not edit this line) */

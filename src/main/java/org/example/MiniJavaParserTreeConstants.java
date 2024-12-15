@@ -8,8 +8,30 @@ public interface MiniJavaParserTreeConstants
   public int JJTCLASSDECL = 2;
   public int JJTVARDECL = 3;
   public int JJTMETHODDECL = 4;
-  public int JJTVOID = 5;
-  public int JJTTYPE = 6;
+  public int JJTFORMALLIST = 5;
+  public int JJTFORMALREST = 6;
+  public int JJTTYPE = 7;
+  public int JJTSTATEMENT = 8;
+  public int JJTEXP = 9;
+  public int JJTCONDITION = 10;
+  public int JJTEXPLOG = 11;
+  public int JJTEXPLOG2 = 12;
+  public int JJTOPLOG = 13;
+  public int JJTEXPREL = 14;
+  public int JJTOPREL = 15;
+  public int JJTEXPARM = 16;
+  public int JJTEXPARM2 = 17;
+  public int JJTOPAD = 18;
+  public int JJTEXPTERM = 19;
+  public int JJTEXPTERM2 = 20;
+  public int JJTOPMUL = 21;
+  public int JJTEXPFACT = 22;
+  public int JJTACCESS = 23;
+  public int JJTCALL = 24;
+  public int JJTCALL2 = 25;
+  public int JJTCALLTARGET = 26;
+  public int JJTEXPLIST = 27;
+  public int JJTEXPREST = 28;
 
 
   public String[] jjtNodeName = {
@@ -18,8 +40,30 @@ public interface MiniJavaParserTreeConstants
     "ClassDecl",
     "VarDecl",
     "MethodDecl",
-    "void",
+    "FormalList",
+    "FormalRest",
     "Type",
+    "Statement",
+    "Exp",
+    "Condition",
+    "ExpLog",
+    "ExpLog2",
+    "OpLog",
+    "ExpRel",
+    "OpRel",
+    "ExpArm",
+    "ExpArm2",
+    "OpAd",
+    "ExpTerm",
+    "ExpTerm2",
+    "OpMul",
+    "ExpFact",
+    "Access",
+    "Call",
+    "Call2",
+    "CallTarget",
+    "ExpList",
+    "ExpRest",
   };
 }
-/* JavaCC - OriginalChecksum=f1d097934c2819b482d8541eaee53b02 (do not edit this line) */
+/* JavaCC - OriginalChecksum=4c3f0c62ee93829d724f72c98fd4e1d6 (do not edit this line) */

@@ -9,6 +9,29 @@ public interface MiniJavaParserVisitor
   public Object visit(ASTClassDecl node, Object data);
   public Object visit(ASTVarDecl node, Object data);
   public Object visit(ASTMethodDecl node, Object data);
+  public Object visit(ASTFormalList node, Object data);
+  public Object visit(ASTFormalRest node, Object data);
   public Object visit(ASTType node, Object data);
+  public Object visit(ASTStatement node, Object data);
+  public Object visit(ASTExp node, Object data);
+  public Object visit(ASTCondition node, Object data);
+  public Object visit(ASTExpLog node, Object data);
+  public Object visit(ASTExpLog2 node, Object data);
+  public Object visit(ASTOpLog node, Object data);
+  public Object visit(ASTExpRel node, Object data);
+  public Object visit(ASTOpRel node, Object data);
+  public Object visit(ASTExpArm node, Object data);
+  public Object visit(ASTExpArm2 node, Object data);
+  public Object visit(ASTOpAd node, Object data);
+  public Object visit(ASTExpTerm node, Object data);
+  public Object visit(ASTExpTerm2 node, Object data);
+  public Object visit(ASTOpMul node, Object data);
+  public Object visit(ASTExpFact node, Object data);
+  public Object visit(ASTAccess node, Object data);
+  public Object visit(ASTCall node, Object data);
+  public Object visit(ASTCall2 node, Object data);
+  public Object visit(ASTCallTarget node, Object data);
+  public Object visit(ASTExpList node, Object data);
+  public Object visit(ASTExpRest node, Object data);
 }
-/* JavaCC - OriginalChecksum=c46c3b71572f339c87abb914cb85e1c7 (do not edit this line) */
+/* JavaCC - OriginalChecksum=e9b43b89291ed1417185ace9034ac295 (do not edit this line) */

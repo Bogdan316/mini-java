@@ -5,50 +5,53 @@ options {
     VISITOR = true;
     NODE_PACKAGE = "org.example";
     TRACK_TOKENS = true;
-    NODE_DEFAULT_VOID = true;
+//    NODE_DEFAULT_VOID = true;
 }
 
 PARSER_BEGIN(MiniJavaParser)
     package org.example;
-    import java.util.*;
-    import javax.swing.tree.DefaultMutableTreeNode;import java.util.ArrayList;
-    public class MiniJavaParser {
-        public static void constructJTree(DefaultMutableTreeNode parent, Node crtNode) {
-            for(int i = 0; i < crtNode.jjtGetNumChildren(); i++) {
-                Node child = crtNode.jjtGetChild(i);
-                DefaultMutableTreeNode jNode = new DefaultMutableTreeNode(child.toString());
-                parent.add(jNode);
-                constructJTree(jNode, child);
-            }
-        }
-        public static void main(String[] args) throws ParseException {
-            MiniJavaParser parser = new MiniJavaParser(System.in);
-            ASTProgram p = parser.Program();
-            DefaultMutableTreeNode tree = new DefaultMutableTreeNode("Program");
-            constructJTree(tree, p);
-            DomainAnalysisVisitor visitor = new DomainAnalysisVisitor();
-            p.jjtAccept(visitor, null);
-            for(var cls : visitor.classTable) {
-                System.out.println(cls);
-            }
-            System.out.println();
-            for(var t : visitor.typeTable) {
-                System.out.println(t);
-            }
-//            MiniJavaParserVisitor v = new MiniJavaPrinterVisitor();
-//            p.jjtAccept(v, null);
-//            javax.swing.SwingUtilities.invokeLater(new Runnable() {
-//                        public void run() {
-//                            JTree j = new JTree(tree);
-//                            JFrame f = new JFrame();
-//                            f.add(j);
-//                            f.setSize(200, 200);
-//                            f.setVisible(true);
-//                            System.out.println("here");
-//                        }
-//                    });
+import java.util.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.ArrayList;
+import javax.swing.JFrame;
+import javax.swing.JTree;
+
+public class MiniJavaParser {
+    public static void constructJTree(DefaultMutableTreeNode parent, Node crtNode) {
+        for(int i = 0; i < crtNode.jjtGetNumChildren(); i++) {
+            Node child = crtNode.jjtGetChild(i);
+            DefaultMutableTreeNode jNode = new DefaultMutableTreeNode(child.toString());
+            parent.add(jNode);
+            constructJTree(jNode, child);
         }
     }
+    public static void main(String[] args) throws ParseException {
+        MiniJavaParser parser = new MiniJavaParser(System.in);
+        ASTProgram p = parser.Program();
+        DefaultMutableTreeNode tree = new DefaultMutableTreeNode("Program");
+        constructJTree(tree, p);
+        DomainAnalysisVisitor visitor = new DomainAnalysisVisitor();
+        p.jjtAccept(visitor, null);
+        for(var cls : visitor.classTable) {
+            System.out.println(cls);
+        }
+        System.out.println();
+        for(var t : visitor.typeTable) {
+            System.out.println(t);
+        }
+        MiniJavaParserVisitor v = new MiniJavaPrinterVisitor();
+        p.jjtAccept(v, null);
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        JTree j = new JTree(tree);
+                        JFrame f = new JFrame();
+                        f.add(j);
+                        f.setSize(200, 200);
+                        f.setVisible(true);
+                    }
+                });
+    }
+}
 PARSER_END(MiniJavaParser)
 
 TOKEN : {
@@ -97,7 +100,7 @@ TOKEN : {
     <ID: ["_", "$", "a"-"z", "A"-"Z"](["_", "$", "a"-"z", "A"-"Z", "0"-"9"])*>
 }
 
-<*> SKIP : {
+<*> SPECIAL_TOKEN : {
     " "
     |
     "\t"
@@ -118,6 +121,7 @@ ASTProgram Program() #Program:
     {return jjtThis;}
 }
 
+//TODO: fix this
 void MainClass() #MainClass:
 {
     List fields = new ArrayList();
@@ -244,9 +248,9 @@ void Statement():
 {
     "{" (Statement())* "}"
     |
-    <IF> "(" Exp() ")" Statement() (LOOKAHEAD(2) <ELSE> Statement())?
+    <IF> "(" Condition() ")" Statement() (LOOKAHEAD(2) <ELSE> Statement())?
     |
-    <WHILE> "(" Exp() ")" Statement()
+    <WHILE> "(" Condition() ")" Statement()
     |
     <SOUT> "(" Exp() ")" ";"
     |
@@ -254,98 +258,151 @@ void Statement():
         LOOKAHEAD(2) <ID> (
             "=" Exp() ";"
             |
-            "[" Exp() "]" "=" Exp() ";"
+            "[" ExpArm() "]" "=" ExpArm() ";"
         )
         |
         Exp() ";"
     )
 }
 
-void Exp():
+String Exp():
 {}
 {
     Condition()
+    {
+        return "Exp";
+    }
 }
 
 void Condition():
 {}
 {
-    LogExp()
+    ExpLog() | "!" ExpLog()
 }
 
-void ExpList():
+void ExpLog():
 {}
 {
-    LogExp() (ExpRest())*
+    ExpRel() ExpLog2() | <TRUE> ExpLog2() | <FALSE> ExpLog2()
 }
 
-void ExpRest():
+void ExpLog2():
 {}
 {
-    "," LogExp()
+    (OpLog() ExpRel() ExpLog2())?
 }
 
-void LogExp():
+void OpLog():
 {}
 {
-    LogExpTerm() (LOOKAHEAD(2) "||" LogExpTerm())*
+    "&&" | "||"
 }
 
-void LogExpTerm():
+void ExpRel():
 {}
 {
-    LogExpFactor() (LOOKAHEAD(2) "&&" LogExpFactor())*
+    LOOKAHEAD(3) "(" Condition() ")" | ExpArm() (OpRel() ExpArm())?
 }
 
-void LogExpFactor():
+void OpRel():
 {}
 {
-    "!" LogExp() | LOOKAHEAD(3) "(" LogExp() ")" | RelExp() | <TRUE> | <FALSE>
+    "==" | "!=" | "<" | ">" | "<=" | ">="
 }
 
-
-void RelExp():
+void ExpArm():
 {}
 {
-    ArExp() (RelOp() ArExp())?
+    ExpTerm() ExpArm2()
 }
 
-void RelOp():
+void ExpArm2():
 {}
 {
-    "<" | ">" | "<=" | ">=" | "==" | "!="
+    (OpAd() ExpTerm() ExpArm2())?
 }
 
-void ArExp():
-{}
-{
-    Term() (AddOp() Term())*
-}
-
-void AddOp():
+void OpAd():
 {}
 {
     "+" | "-"
 }
 
-void Term():
+void ExpTerm():
 {}
 {
-    Factor() (MulOp() Factor())*
+    ExpFact() ExpTerm2()
 }
 
-void MulOp():
+void ExpTerm2():
 {}
 {
-    "*" | "/" | "."
+    (OpMul() ExpFact() ExpTerm2())?
 }
 
-void Factor():
+void OpMul():
 {}
 {
-    "(" ArExp() ")"
-    | <ID> (LOOKAHEAD(2) "(" (ExpList())? ")")?
-    | <INTEGER>
-    | <NEW> (<ID> "(" ")" | <INT> "[" ArExp() "]")
-    | <THIS>
+    "*" | "|"
 }
+
+void ExpFact():
+{}
+{
+    <INTEGER> | "(" ExpArm() ")" | Access()
+}
+
+void Access():
+{}
+{
+    Call() ("[" ExpArm() "]")?
+}
+
+void Call():
+{}
+{
+    CallTarget() Call2()
+}
+
+void Call2():
+{}
+{
+    (
+        "."
+        (
+            <LENGTH>
+            |
+            <ID>
+            "(" (ExpList())? ")" Call2()
+        )
+    )?
+}
+
+void CallTarget():
+{}
+{
+    // TODO: distinction between local var and type
+    "new"
+    (
+        <INT> "[" ExpArm() "]"
+        |
+        <ID> "(" ")"
+    )
+    |
+    <ID>
+    |
+    <THIS>
+}
+
+void ExpList():
+{}
+{
+    Exp() (ExpRest())*
+}
+
+void ExpRest():
+{}
+{
+    "," Exp()
+}
+

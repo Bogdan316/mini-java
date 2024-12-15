@@ -28,61 +28,63 @@ enum MemberKind {
     FIELD;
 }
 
-record FormalParameterRow(String name, String[] signature, String type) {
-    @Override
-    public String toString() {
-        return "FormalParameterRow{" +
-                "name='" + name + '\'' +
-                ", signature=" + Arrays.toString(signature) +
-                ", type='" + type + '\'' +
-                '}';
-    }
+record FormalParameterRow(String name, String[] signature, int typeIdx) {
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FormalParameterRow that = (FormalParameterRow) o;
-        return Objects.equals(name, that.name) && Arrays.equals(signature, that.signature) && Objects.equals(type, that.type);
+        return typeIdx == that.typeIdx && Objects.equals(name, that.name) && Arrays.equals(signature, that.signature);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(name, type);
+        int result = Objects.hash(name, typeIdx);
         result = 31 * result + Arrays.hashCode(signature);
         return result;
     }
-}
 
-record LocalVarsRow(String name, String[] signature, String returnType) {
     @Override
     public String toString() {
-        return "LocalVarsRow{" +
+        return "FormalParameterRow{" +
                 "name='" + name + '\'' +
                 ", signature=" + Arrays.toString(signature) +
-                ", returnType='" + returnType + '\'' +
+                ", typeIdx=" + typeIdx +
                 '}';
     }
+}
+
+record LocalVarsRow(String name, String[] signature, int returnTypeIdx) {
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LocalVarsRow that = (LocalVarsRow) o;
-        return Objects.equals(name, that.name) && Arrays.equals(signature, that.signature) && Objects.equals(returnType, that.returnType);
+        return returnTypeIdx == that.returnTypeIdx && Objects.equals(name, that.name) && Arrays.equals(signature, that.signature);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(name, returnType);
+        int result = Objects.hash(name, returnTypeIdx);
         result = 31 * result + Arrays.hashCode(signature);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "LocalVarsRow{" +
+                "name='" + name + '\'' +
+                ", signature=" + Arrays.toString(signature) +
+                ", returnTypeIdx=" + returnTypeIdx +
+                '}';
+    }
 }
 
-record MemberRow(String name, String[] signature, String returnType, MemberKind kind,
+record MemberRow(String name, String[] signature, int returnTypeIdx, MemberKind kind,
                  List<FormalParameterRow> formalParams, List<LocalVarsRow> locals) {
-    public MemberRow(String name, String[] signature, String returnType, MemberKind kind) {
+    public MemberRow(String name, String[] signature, int returnType, MemberKind kind) {
         this(name, signature, returnType, kind, new ArrayList<>(), new ArrayList<>());
     }
 
@@ -117,12 +119,12 @@ record MemberRow(String name, String[] signature, String returnType, MemberKind 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MemberRow memberRow = (MemberRow) o;
-        return Objects.equals(name, memberRow.name) && Arrays.equals(signature, memberRow.signature) && Objects.equals(returnType, memberRow.returnType) && kind == memberRow.kind && Objects.equals(formalParams, memberRow.formalParams) && Objects.equals(locals, memberRow.locals);
+        return returnTypeIdx == memberRow.returnTypeIdx && Objects.equals(name, memberRow.name) && Arrays.equals(signature, memberRow.signature) && kind == memberRow.kind && Objects.equals(formalParams, memberRow.formalParams) && Objects.equals(locals, memberRow.locals);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(name, returnType, kind, formalParams, locals);
+        int result = Objects.hash(name, returnTypeIdx, kind, formalParams, locals);
         result = 31 * result + Arrays.hashCode(signature);
         return result;
     }
@@ -132,7 +134,7 @@ record MemberRow(String name, String[] signature, String returnType, MemberKind 
         return "MemberRow{" +
                 "name='" + name + '\'' +
                 ", signature=" + Arrays.toString(signature) +
-                ", returnType='" + returnType + '\'' +
+                ", returnTypeIdx=" + returnTypeIdx +
                 ", kind=" + kind +
                 ", formalParams=" + formalParams +
                 ", locals=" + locals +
@@ -140,7 +142,7 @@ record MemberRow(String name, String[] signature, String returnType, MemberKind 
     }
 }
 
-public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
+public class DomainAnalysisVisitor extends MiniJavaParserDefaultVisitor {
     List<ClassRow> classTable = new ArrayList<>();
     List<TypeRow> typeTable = new ArrayList<>();
 
@@ -154,7 +156,7 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
         typeTable.add(new TypeRow("Object", 0));
     }
 
-    private ClassRow addClassRow(String clsName, String parentName) {
+    private void addClassRow(String clsName, String parentName) {
         for (var r : classTable) {
             if (r.clsName().equals(clsName)) {
                 throw new RuntimeException("Class '" + clsName + "' is already defined.");
@@ -171,7 +173,6 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
 
         var row = new ClassRow(clsName, parentIdx);
         classTable.add(row);
-        return row;
     }
 
     private int findClass(String name) {
@@ -226,28 +227,14 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
         }
     }
 
-    private void addLocal(List<LocalVarsRow> locals, LocalVarsRow local) {
-
-    }
-
     private void addType(String name) {
         addType(name, null);
     }
 
     @Override
-    public Object visit(SimpleNode node, Object data) {
-        return node.childrenAccept(this, data);
-    }
-
-    @Override
-    public Object visit(ASTProgram node, Object data) {
-        return visit((SimpleNode) node, data);
-    }
-
-    @Override
     public Object visit(ASTMainClass node, Object data) {
         addType(node.name, "Object");
-        return visit((SimpleNode) node, data);
+        return super.visit(node, data);
     }
 
     private void checkCycles(int idx, ClassRow row) {
@@ -277,11 +264,12 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
         checkCycles(idx, classRow);
 
         for (var field : node.fields) {
+            addType(field.typeNode.name);
             classRow.addMember(
                     new MemberRow(
                             field.name,
                             new String[]{field.name},
-                            field.typeNode.name,
+                            findType(field.typeNode.name),
                             MemberKind.FIELD
                     )
             );
@@ -289,10 +277,11 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
         for (var method : node.methods) {
             var sign = Stream.concat(Stream.of(method.name), method.paramTypes.stream())
                     .toArray(String[]::new);
+            addType(method.returnType.name);
             var memberRow = new MemberRow(
                     method.name,
                     sign,
-                    method.returnType.name,
+                    findType(method.returnType.name),
                     MemberKind.METHOD
             );
 
@@ -301,30 +290,22 @@ public class DomainAnalysisVisitor implements MiniJavaParserVisitor {
             while (typesIt.hasNext() && namesIt.hasNext()) {
                 var type = typesIt.next();
                 var name = namesIt.next();
-                memberRow.addFormalParam(new FormalParameterRow(name, new String[]{name}, type));
+                addType(type);
+                memberRow.addFormalParam(new FormalParameterRow(name, new String[]{name}, findType(type)));
             }
 
             for (var local : method.locals) {
-                memberRow.addLocal(new LocalVarsRow(local.name, new String[]{local.name}, local.typeNode.name));
+                addType(local.typeNode.name);
+                memberRow.addLocal(new LocalVarsRow(local.name, new String[]{local.name}, findType(local.typeNode.name)));
             }
             classRow.addMember(memberRow);
         }
-        return visit((SimpleNode) node, data);
-    }
-
-    @Override
-    public Object visit(ASTVarDecl node, Object data) {
-        return visit((SimpleNode) node, data);
-    }
-
-    @Override
-    public Object visit(ASTMethodDecl node, Object data) {
-        return visit((SimpleNode) node, data);
+        return super.visit(node, data);
     }
 
     @Override
     public Object visit(ASTType node, Object data) {
         addType(node.name);
-        return visit((SimpleNode) node, data);
+        return super.visit(node, data);
     }
 }

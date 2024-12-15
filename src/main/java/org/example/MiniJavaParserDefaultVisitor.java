@@ -24,53 +24,8 @@ public class MiniJavaParserDefaultVisitor implements MiniJavaParserVisitor{
   public Object visit(ASTMethodDecl node, Object data){
     return defaultVisit(node, data);
   }
-  public Object visit(ASTFormalList node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTFormalRest node, Object data){
-    return defaultVisit(node, data);
-  }
   public Object visit(ASTType node, Object data){
     return defaultVisit(node, data);
   }
-  public Object visit(ASTStatement node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTExp node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTCondition node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTLogExp node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTLogExpTerm node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTLogExpFactor node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTRelExp node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTRelOp node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTArExp node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTAddOp node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTTerm node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTMulOp node, Object data){
-    return defaultVisit(node, data);
-  }
-  public Object visit(ASTFactor node, Object data){
-    return defaultVisit(node, data);
-  }
 }
-/* JavaCC - OriginalChecksum=98041e5a3f69086a52509394845b4767 (do not edit this line) */
+/* JavaCC - OriginalChecksum=154f2e37c655e5ccca4665515d8503fa (do not edit this line) */

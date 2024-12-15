@@ -8,22 +8,8 @@ public interface MiniJavaParserTreeConstants
   public int JJTCLASSDECL = 2;
   public int JJTVARDECL = 3;
   public int JJTMETHODDECL = 4;
-  public int JJTFORMALLIST = 5;
-  public int JJTFORMALREST = 6;
-  public int JJTTYPE = 7;
-  public int JJTSTATEMENT = 8;
-  public int JJTEXP = 9;
-  public int JJTCONDITION = 10;
-  public int JJTLOGEXP = 11;
-  public int JJTLOGEXPTERM = 12;
-  public int JJTLOGEXPFACTOR = 13;
-  public int JJTRELEXP = 14;
-  public int JJTRELOP = 15;
-  public int JJTAREXP = 16;
-  public int JJTADDOP = 17;
-  public int JJTTERM = 18;
-  public int JJTMULOP = 19;
-  public int JJTFACTOR = 20;
+  public int JJTVOID = 5;
+  public int JJTTYPE = 6;
 
 
   public String[] jjtNodeName = {
@@ -32,22 +18,8 @@ public interface MiniJavaParserTreeConstants
     "ClassDecl",
     "VarDecl",
     "MethodDecl",
-    "FormalList",
-    "FormalRest",
+    "void",
     "Type",
-    "Statement",
-    "Exp",
-    "Condition",
-    "LogExp",
-    "LogExpTerm",
-    "LogExpFactor",
-    "RelExp",
-    "RelOp",
-    "ArExp",
-    "AddOp",
-    "Term",
-    "MulOp",
-    "Factor",
   };
 }
-/* JavaCC - OriginalChecksum=b0c9e4e9d33ec0692b038c64fdc6f8ab (do not edit this line) */
+/* JavaCC - OriginalChecksum=f1d097934c2819b482d8541eaee53b02 (do not edit this line) */

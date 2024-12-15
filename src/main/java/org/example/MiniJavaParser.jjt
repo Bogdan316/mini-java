@@ -4,27 +4,49 @@ options {
     MULTI = true;
     VISITOR = true;
     NODE_PACKAGE = "org.example";
+    TRACK_TOKENS = true;
+    NODE_DEFAULT_VOID = true;
 }
 
 PARSER_BEGIN(MiniJavaParser)
     package org.example;
-    import javax.swing.*;
+    import java.util.*;
+    import javax.swing.tree.DefaultMutableTreeNode;import java.util.ArrayList;
     public class MiniJavaParser {
+        public static void constructJTree(DefaultMutableTreeNode parent, Node crtNode) {
+            for(int i = 0; i < crtNode.jjtGetNumChildren(); i++) {
+                Node child = crtNode.jjtGetChild(i);
+                DefaultMutableTreeNode jNode = new DefaultMutableTreeNode(child.toString());
+                parent.add(jNode);
+                constructJTree(jNode, child);
+            }
+        }
         public static void main(String[] args) throws ParseException {
             MiniJavaParser parser = new MiniJavaParser(System.in);
             ASTProgram p = parser.Program();
-            javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            JTree j = new JTree(p.jTree);
-                            JFrame f = new JFrame();
-                            f.add(j);
-                            f.setSize(200, 200);
-                            f.setVisible(true);
-                            System.out.println("here");
-                        }
-                    });
-//            p.dump("");
-//            System.out.println("here here");
+            DefaultMutableTreeNode tree = new DefaultMutableTreeNode("Program");
+            constructJTree(tree, p);
+            DomainAnalysisVisitor visitor = new DomainAnalysisVisitor();
+            p.jjtAccept(visitor, null);
+            for(var cls : visitor.classTable) {
+                System.out.println(cls);
+            }
+            System.out.println();
+            for(var t : visitor.typeTable) {
+                System.out.println(t);
+            }
+//            MiniJavaParserVisitor v = new MiniJavaPrinterVisitor();
+//            p.jjtAccept(v, null);
+//            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+//                        public void run() {
+//                            JTree j = new JTree(tree);
+//                            JFrame f = new JFrame();
+//                            f.add(j);
+//                            f.setSize(200, 200);
+//                            f.setVisible(true);
+//                            System.out.println("here");
+//                        }
+//                    });
         }
     }
 PARSER_END(MiniJavaParser)
@@ -89,57 +111,132 @@ TOKEN : {
     <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/">
 }
 
-ASTProgram Program():
+ASTProgram Program() #Program:
 {}
 {
     MainClass() (ClassDecl())* <EOF>
     {return jjtThis;}
 }
 
-void MainClass():
-{}
+void MainClass() #MainClass:
 {
-    <CLASS> <ID> "{" <PUBLIC> <STATIC> <VOID> <MAIN> "(" <STRING> "[" "]" <ID> ")"  "{" (LOOKAHEAD(2) VarDecl())* (Statement())* "}" "}"
+    List fields = new ArrayList();
+}
+{
+    <CLASS>
+    <ID> { jjtThis.setName(token.image); }
+    "{"
+        <PUBLIC> <STATIC> <VOID> <MAIN> "(" <STRING> "[" "]" <ID> ")"
+        "{"
+            (LOOKAHEAD(2) VarDecl(fields))*
+            (Statement())*
+        "}"
+    "}"
+    {
+    for(var f : fields) {
+        jjtThis.addField((ASTVarDecl) f);
+    }
+}
 }
 
-void ClassDecl():
-{}
+void ClassDecl() #ClassDecl :
 {
-    <CLASS> <ID> (
-        "{" (VarDecl())* (MethodDecl())* "}"
+    List fields = new ArrayList();
+    List methods = new ArrayList();
+}
+{
+    <CLASS>
+    <ID> { jjtThis.setName(token.image); }
+    (
+        "{"
+            (VarDecl(fields))*
+            (MethodDecl(methods))*
+        "}"
         |
-        <EXTENDS> <ID> "{" (VarDecl())* (MethodDecl())* "}"
+        <EXTENDS> <ID> { jjtThis.setParent(token.image); }
+        "{"
+            (VarDecl(fields))*
+            (MethodDecl(methods))*
+        "}"
     )
+    {
+        for(var f : fields) {
+            jjtThis.addField((ASTVarDecl) f);
+        }
+        for(var m : methods) {
+            jjtThis.addMethod((ASTMethodDecl) m);
+        }
+    }
 }
 
-void VarDecl():
+void VarDecl(List<ASTVarDecl> decls) #VarDecl:
 {}
 {
-    Type() <ID> ";"
+    Type()
+    <ID> { jjtThis.setName(token.image); }
+    ";"
+    {
+        jjtThis.setTypeNode((ASTType) jjtThis.jjtGetChild(0));
+        decls.add(jjtThis);
+    }
 }
 
-void MethodDecl():
-{}
+void MethodDecl(List methods) #MethodDecl:
 {
-     <PUBLIC> Type() <ID> "(" FormalList() ")" "{" VarDecl() (Statement())* <RETURN> Exp() ";" "}"
+    List locals = new ArrayList();
+    List paramsTypes = new ArrayList();
+    List paramNames = new ArrayList();
+    ASTType returnType = null;
+}
+{
+     <PUBLIC>
+     returnType = Type() { jjtThis.setReturnType(returnType); }
+     <ID> { jjtThis.setName(token.image); }
+     "(" (FormalList(paramsTypes, paramNames))? ")"
+     "{"
+            (LOOKAHEAD(2) VarDecl(locals))*
+            (Statement())*
+            <RETURN> Exp() ";"
+     "}"
+     {
+   for(var paramType : paramsTypes) {
+       jjtThis.addParamType(((ASTType) paramType).name);
+   }
+   for(var local : locals) {
+       jjtThis.addLocal((ASTVarDecl) local);
+   }
+   for(var paramName: paramNames) {
+       jjtThis.addParamName((String) paramName);
+   }
+   methods.add(jjtThis);
+}
 }
 
-void FormalList():
-{}
+void FormalList(List types, List params):
 {
-    Type() <ID> (FormalRest())*
+    ASTType type;
+}
+{
+    type = Type() { types.add(type); }
+    <ID> { params.add(token.image); }
+    (FormalRest(types))*
 }
 
-void FormalRest():
-{}
+void FormalRest(List types):
 {
-    "," Type() <ID>
+    ASTType type;
+}
+{
+    ","
+    type = Type() { types.add(type); }
+    <ID>
 }
 
-void Type():
+ASTType Type() #Type:
 {}
 {
-   <INT> ("[" "]")? | <BOOLEAN> | <ID>
+   (<INT> | <INT_ARR> | <BOOLEAN> | <ID>) { jjtThis.setName(token.image); }
+   { return jjtThis; }
 }
 
 void Statement():
@@ -153,10 +250,14 @@ void Statement():
     |
     <SOUT> "(" Exp() ")" ";"
     |
-    <ID> (
-        "=" Exp() ";"
+    (
+        LOOKAHEAD(2) <ID> (
+            "=" Exp() ";"
+            |
+            "[" Exp() "]" "=" Exp() ";"
+        )
         |
-        "[" Exp() "]" "=" Exp() ";"
+        Exp() ";"
     )
 }
 
@@ -170,6 +271,18 @@ void Condition():
 {}
 {
     LogExp()
+}
+
+void ExpList():
+{}
+{
+    LogExp() (ExpRest())*
+}
+
+void ExpRest():
+{}
+{
+    "," LogExp()
 }
 
 void LogExp():
@@ -224,11 +337,15 @@ void Term():
 void MulOp():
 {}
 {
-    "*" | "/"
+    "*" | "/" | "."
 }
 
 void Factor():
 {}
 {
-    "(" ArExp() ")" | <ID> | <INTEGER>
+    "(" ArExp() ")"
+    | <ID> (LOOKAHEAD(2) "(" (ExpList())? ")")?
+    | <INTEGER>
+    | <NEW> (<ID> "(" ")" | <INT> "[" ArExp() "]")
+    | <THIS>
 }

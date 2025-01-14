@@ -1,5 +1,5 @@
 options {
-    DEBUG_PARSER = true;
+//    DEBUG_PARSER = true;
     OUTPUT_DIRECTORY = "/home/bogdan/git/MiniJava/src/main/java/org/example";
     MULTI = true;
     VISITOR = true;
@@ -13,8 +13,6 @@ PARSER_BEGIN(MiniJavaParser)
 import java.util.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
-import javax.swing.JFrame;
-import javax.swing.JTree;
 
 public class MiniJavaParser {
     public static void constructJTree(DefaultMutableTreeNode parent, Node crtNode) {
@@ -33,26 +31,28 @@ public class MiniJavaParser {
         constructJTree(tree, p);
         DomainAnalysisVisitor visitor = new DomainAnalysisVisitor();
         p.jjtAccept(visitor, null);
+        Compile c = new Compile(visitor.typeTable, visitor.classTable);
+        c.compile();
         for(var cls : visitor.classTable) {
             System.out.println(cls);
         }
-        System.out.println();
-        for(var t : visitor.typeTable) {
-            System.out.println(t);
-        }
+//        System.out.println();
+//        for(var t : visitor.typeTable) {
+//            System.out.println(t);
+//        }
 //        TypeCheckingVisitor v = new TypeCheckingVisitor();
 //        p.jjtAccept(v, null);
-        MiniJavaParserVisitor v = new MiniJavaPrinterVisitor();
-        p.jjtAccept(v, null);
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        JTree j = new JTree(tree);
-                        JFrame f = new JFrame();
-                        f.add(j);
-                        f.setSize(200, 200);
-                        f.setVisible(true);
-                    }
-                });
+//        MiniJavaParserVisitor v = new MiniJavaPrinterVisitor();
+//        p.jjtAccept(v, null);
+//        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+//                    public void run() {
+//                        JTree j = new JTree(tree);
+//                        JFrame f = new JFrame();
+//                        f.add(j);
+//                        f.setSize(200, 200);
+//                        f.setVisible(true);
+//                    }
+//                });
     }
 }
 PARSER_END(MiniJavaParser)
@@ -141,9 +141,9 @@ void MainClass() #MainClass:
     "}"
     {
     for(var f : fields) {
-        jjtThis.addField((ASTVarDecl) f);
+        jjtThis.locals((ASTVarDecl) f);
     }
-}
+    }
 }
 
 void ClassDecl() #ClassDecl :
@@ -196,7 +196,7 @@ void MethodDecl(List methods) #MethodDecl:
     ASTType returnType = null;
 }
 {
-     <PUBLIC>
+     <PUBLIC> (<STATIC>)?
      returnType = Type() { jjtThis.setReturnType(returnType); }
      <ID> { jjtThis.setName(token.image); }
      "(" (FormalList(paramsTypes, paramNames))? ")"

@@ -8,7 +8,7 @@ import java.util.List;
 public
 class ASTMainClass extends SimpleNode {
   String name;
-  List<ASTVarDecl> fields = new ArrayList<>();
+  List<ASTVarDecl> locals = new ArrayList<>();
   public ASTMainClass(int id) {
     super(id);
   }
@@ -21,8 +21,8 @@ class ASTMainClass extends SimpleNode {
     this.name = name;
   }
 
-  public void addField(ASTVarDecl local) {
-    fields.add(local);
+  public void locals(ASTVarDecl local) {
+    locals.add(local);
   }
 
   /** Accept the visitor. **/

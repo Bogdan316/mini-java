@@ -217,7 +217,7 @@ public class DomainAnalysisVisitor extends MiniJavaParserDefaultVisitor {
         if (clsIdx < 0) {
             addClassRow(name, parent);
             if (typeIdx < 0) {
-                typeTable.add(new TypeRow(name, classTable.size()));
+                typeTable.add(new TypeRow(name, classTable.size() - 1));
             }
         } else {
             var cls = classTable.get(clsIdx);
@@ -231,11 +231,6 @@ public class DomainAnalysisVisitor extends MiniJavaParserDefaultVisitor {
         addType(name, null);
     }
 
-    @Override
-    public Object visit(ASTMainClass node, Object data) {
-        addType(node.name, "Object");
-        return super.visit(node, data);
-    }
 
     private void checkCycles(int idx, ClassRow row) {
         var visited = new HashSet<Integer>();
@@ -248,6 +243,29 @@ public class DomainAnalysisVisitor extends MiniJavaParserDefaultVisitor {
             }
             visited.add(idx);
         }
+    }
+
+    @Override
+    public Object visit(ASTMainClass node, Object data) {
+        addType(node.name, "Object");
+        int idx = findClass(node.name);
+        var classRow = classTable.get(idx);
+        checkCycles(idx, classRow);
+
+        var memberRow = new MemberRow(
+                "main",
+                new String[]{"main", "String[]"},
+                findType("void"),
+                MemberKind.METHOD
+        );
+
+        for (var local : node.locals) {
+            addType(local.typeNode.name);
+            memberRow.addLocal(new LocalVarsRow(local.name, new String[]{local.name}, findType(local.typeNode.name)));
+        }
+
+        classRow.addMember(memberRow);
+        return super.visit(node, data);
     }
 
     @Override

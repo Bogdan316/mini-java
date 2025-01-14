@@ -4,8 +4,6 @@ package org.example;
 import java.util.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
-import javax.swing.JFrame;
-import javax.swing.JTree;
 
 /** Token Manager. */
 @SuppressWarnings ("unused")

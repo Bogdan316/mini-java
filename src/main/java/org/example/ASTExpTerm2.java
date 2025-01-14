@@ -4,6 +4,9 @@ package org.example;
 
 public
 class ASTExpTerm2 extends SimpleNode {
+  ASTExpFact fact;
+  ASTExpTerm2 term;
+
   public ASTExpTerm2(int id) {
     super(id);
   }

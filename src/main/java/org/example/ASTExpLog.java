@@ -4,6 +4,10 @@ package org.example;
 
 public
 class ASTExpLog extends SimpleNode {
+
+  ASTExpRel rel;
+  ASTExpLog2 log;
+
   public ASTExpLog(int id) {
     super(id);
   }

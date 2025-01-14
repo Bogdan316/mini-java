@@ -4,6 +4,7 @@ package org.example;
 
 public
 class SimpleNode implements Node {
+  TypeId type;
 
   protected Node parent;
   protected Node[] children;

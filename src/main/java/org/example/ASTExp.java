@@ -4,6 +4,7 @@ package org.example;
 
 public
 class ASTExp extends SimpleNode {
+  ASTCondition cond;
   public ASTExp(int id) {
     super(id);
   }

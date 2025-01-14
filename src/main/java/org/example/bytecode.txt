@@ -1,0 +1,215 @@
+ca fe ba be // magic bytes for class format
+00 00 // minor version 0
+00 3d // major version 61 JavaSE 17
+00 26 // constant pool count 38
+
+0a // 1 - CONSTANT_Methodref
+00 02 // class_index
+00 03 // name_and_type_index
+
+07 // 2 - CONSTANT_Class
+00 04 // name_index -> java/lang/Object
+
+0c // 3 - CONSTANT_NameAndType
+00 05 // name_index -> <init>
+00 06 // descriptor_index -> ()V
+
+01 // 4 - CONSTANT_Utf8
+00 10 // length
+6a 61 76 61 2f 6c 61 6e 67 2f 4f 62 6a 65 63 74 // bytes[16] java/lang/Object
+
+01 // 5 - CONSTANT_Utf8
+00 06 // length
+3c 69 6e 69 74 3e // bytes[6] <init>
+
+01 // 6 - CONSTANT_Utf8
+00 03 // length
+28 29 56 // bytes[3] ()V
+
+0a // 7 - CONSTANT_Methodref
+00 08 // class_index
+00 09 // name_and_type_index
+
+07 // 8 - CONSTANT_Class
+00 0a // name_index -> java/lang/Integer
+
+0c // 9 - CONSTANT_NameAndType
+00 0b // name_index -> parseInt
+00 0c // descriptor_index -> (Ljava/lang/String;)I
+
+01 // 10 - CONSTANT_Utf8
+00 11 // length
+6a 61 76 61 2f 6c 61 6e 67 2f 49 6e 74 65 67 65 72 // bytes[17] java/lang/Integer
+
+01 // 11 - CONSTANT_Utf8
+00 08 // length
+70 61 72 73 65 49 6e 74 // bytes[8] parseInt
+
+01 // 12 - CONSTANT_Utf8
+00 15 // length
+28 4c 6a 61 76 61 2f 6c 61 6e 67 2f 53 74 72 69 6e 67 3b 29 49 // bytes[21] (Ljava/lang/String;)I
+
+0a // 13 - CONSTANT_Methodref
+00 0e // class_index
+00 0f // name_and_type_index
+
+07 // 14 - CONSTANT_Class
+00 10 // name_index -> Minimum
+
+0c // 15 - CONSTANT_NameAndType
+00 11 // name_index -> Min
+00 12 // descriptor_index -> (II)I
+
+01 // 16 - CONSTANT_Utf8
+00 07 // length
+4d 69 6e 69 6d 75 6d // bytes[7] Minimum
+
+01 // 17 - CONSTANT_Utf8
+00 03 // length
+4d 69 6e // btyes[3] Min
+
+01 // 18 - CONSTANT_Utf8
+00 05 // length
+28 49 49 29 49 // bytes[5] (II)I
+
+09 // 19 - CONSTANT_Fieldref
+00 14 // class_index
+00 15 // name_and_type_index
+
+07 // 20 - CONSTANT_Class
+00 16 // name_index ->java/lang/System
+
+0c // 21 - CONSTANT_NameAndType
+00 17 // name_index -> java/lang/System
+00 18 // descriptor_index -> Ljava/io/PrintStream;
+
+01 // 22 - CONSTANT_Utf8
+00 10 // length
+6a 61 76 61 2f 6c 61 6e 67 2f 53 79 73 74 65 6d // bytes[16] java/lang/System
+
+01 // 23 - CONSTANT_Utf8
+00 03 // length
+6f 75 74 // btyes[3] out
+
+01 // 24 - CONSTANT_Utf8
+00 15 // length
+4c 6a 61 76 61 2f 69 6f 2f 50 72 69 6e 74 53 74 72 65 61 6d 3b // bytes[21] Ljava/io/PrintStream;
+
+0a // 25 - CONSTANT_Methodref
+00 1a // class_index
+00 1b // name_and_type_index
+
+07 // 26 - CONSTANT_Class
+00 1c // name_index -> java/io/PrintStream
+
+0c // 27 - CONSTANT_NameAndType
+00 1d // name_index -> println
+00 1e // descriptor_index -> (I)V
+
+01 // 28 - CONSTANT_Utf8
+00 13 // length
+6a 61 76 61 2f 69 6f 2f 50 72 69 6e 74 53 74 72 65 61 6d // bytes[19] java/io/PrintStream
+
+01 // 29 - CONSTANT_Utf8
+00 07 // length
+70 72 69 6e 74 6c 6e // bytes[7] println
+
+01 // 30 - CONSTANT_Utf8
+00 04 // length
+28 49 29 56 // bytes[4] (I)V
+
+01 // 31 - CONSTANT_Utf8
+00 04 // length
+43 6f 64 65 // bytes[4] Code
+
+01 // 32 - CONSTANT_Utf8
+00 0f // length
+4c 69 6e 65 4e 75 6d 62 65 72 54 61 62 6c 65 // bytes[15] LineNumberTable
+
+01 // 33 - CONSTANT_Utf8
+00 04 // length
+6d 61 69 6e // bytes[4] main
+
+01 // 34 - CONSTANT_Utf8
+00 16 // length
+28 5b 4c 6a 61 76 61 2f 6c 61 6e 67 2f 53 74 72 69 6e 67 3b 29 56 // bytes[22] ([Ljava/lang/String;)V
+
+01 // 35 - CONSTANT_Utf8
+00 0d // length
+53 74 61 63 6b 4d 61 70 54 61 62 6c 65 // bytes[13] StackMapTable
+
+01 // 36 - CONSTANT_Utf8
+00 0a // length
+53 6f 75 72 63 65 46 69 6c 65 // bytes[10] SourceFile
+
+01 // 37 - CONSTANT_Utf8
+00 0c // length
+4d 69 6e 69 6d 75 6d 2e 6a 61 76 61 // bytes[12] Minimum.java
+
+00 21 // access_flags
+
+00 0e // this_class
+
+00 02 // super_class
+
+00 00 // interfaces_count
+
+00 00 // fields_count
+
+00 03 // methods_count
+
+00 01 // access_flags
+00 05 // name_index -> <init>
+00 06 // descriptor_index -> ()V
+00 01 // attributes_count
+00 1f // attribute_name_index -> Code
+00 00 00 1d // attribute_length
+00 01 // max_stack
+00 01 // max_locals
+00 00 00 05 // code_length
+2a b7 00 01 b1 // code[5]
+00 00 // exception_table_length
+00 01 // attributes_count
+00 20 // attribute_name_index -> LineNumberTable
+00 00 00 06 // attribute_length
+00 01 00 00 00 01 // info[6]
+
+00 09 // access_flags
+00 21 // name_index -> main
+00 22 // descriptor_index -> ([Ljava/lang/String;)V
+00 01 attributes_count
+00 1f // attribute_name_index -> Code
+00 00 00 44 // attribute_length
+00 02 // max_stack
+00 04 // max_locals
+00 00 00 1c // code_length
+2a 03 32 b8 00 07 3c 2a 04 32 b8 00 07 3d 1b 1c b8 00 0d 3e b2 00 13 1d b6 00 19 b1 // code[28]
+00 00 // exception_table_length
+00 01 // attributes_count
+00 20 // attribute_name_index -> LineNumberTable
+00 00 00 16 // attribute_length
+00 05 00 00 00 06 00 07 00 07 00 0e 00 08 00 14 00 09 00 1b 00 0a // code[22]
+
+00 09 // access_flags
+00 11 // name_index -> Min
+00 12 // descriptor_index -> (II)I
+00 01 // attributes_count
+00 1f // attribute_name_index -> Code
+00 00 00 3b // attribute_length
+00 02 // max_stack
+00 03 // max_locals
+00 00 00 0e // code_length
+1a 1b a2 00 08 1a 3d a7 00 05 1b 3d 1c ac // code[14]
+00 00 // exception_table_length
+00 02 // attributes_count
+00 20 // attribute_name_index -> LineNumberTable
+00 00 00 0e // attribute_length
+00 03 00 00 00 0f 00 0a 00 10 00 0c 00 11 // info[14]
+00 23 // attribute_name_index -> StackMapTable
+00 00 00 07 // attribute_length
+00 02 0a fc 00 01 01 // info[7]
+
+00 01 // attributes_count
+00 24 // attribute_name_index -> SourceFile
+00 00 00 02 // attribute_length
+00 25 // info[2]

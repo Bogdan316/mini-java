@@ -4,20 +4,28 @@ package org.example;
 
 public
 class ASTCallTarget extends SimpleNode {
-  public ASTCallTarget(int id) {
-    super(id);
-  }
+    Token intArr;
+    ASTExpArm idxExp;
+    Token clsName;
+    Token localVar;
+    Token thiz;
 
-  public ASTCallTarget(MiniJavaParser p, int id) {
-    super(p, id);
-  }
+    public ASTCallTarget(int id) {
+        super(id);
+    }
+
+    public ASTCallTarget(MiniJavaParser p, int id) {
+        super(p, id);
+    }
 
 
-  /** Accept the visitor. **/
-  public Object jjtAccept(MiniJavaParserVisitor visitor, Object data) {
+    /**
+     * Accept the visitor.
+     **/
+    public Object jjtAccept(MiniJavaParserVisitor visitor, Object data) {
 
-    return
-    visitor.visit(this, data);
-  }
+        return
+                visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=14d3c4981a0d3e8c6b07db80cd19925e (do not edit this line) */

@@ -4,20 +4,26 @@ package org.example;
 
 public
 class ASTExpFact extends SimpleNode {
-  public ASTExpFact(int id) {
-    super(id);
-  }
+    Token integer;
+    ASTExpArm expArm;
+    ASTAccess access;
 
-  public ASTExpFact(MiniJavaParser p, int id) {
-    super(p, id);
-  }
+    public ASTExpFact(int id) {
+        super(id);
+    }
+
+    public ASTExpFact(MiniJavaParser p, int id) {
+        super(p, id);
+    }
 
 
-  /** Accept the visitor. **/
-  public Object jjtAccept(MiniJavaParserVisitor visitor, Object data) {
+    /**
+     * Accept the visitor.
+     **/
+    public Object jjtAccept(MiniJavaParserVisitor visitor, Object data) {
 
-    return
-    visitor.visit(this, data);
-  }
+        return
+                visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=87d571ae399c006364950dfea3d672b1 (do not edit this line) */

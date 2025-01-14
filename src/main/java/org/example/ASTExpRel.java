@@ -4,6 +4,10 @@ package org.example;
 
 public
 class ASTExpRel extends SimpleNode {
+  ASTCondition cond;
+  ASTExpArm expArm;
+  ASTExpArm expArm2;
+
   public ASTExpRel(int id) {
     super(id);
   }

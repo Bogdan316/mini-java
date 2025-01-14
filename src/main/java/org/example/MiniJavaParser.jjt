@@ -1,5 +1,5 @@
 options {
-//    DEBUG_PARSER = true;
+    DEBUG_PARSER = true;
     OUTPUT_DIRECTORY = "/home/bogdan/git/MiniJava/src/main/java/org/example";
     MULTI = true;
     VISITOR = true;
@@ -25,6 +25,7 @@ public class MiniJavaParser {
             constructJTree(jNode, child);
         }
     }
+
     public static void main(String[] args) throws ParseException {
         MiniJavaParser parser = new MiniJavaParser(System.in);
         ASTProgram p = parser.Program();
@@ -39,6 +40,8 @@ public class MiniJavaParser {
         for(var t : visitor.typeTable) {
             System.out.println(t);
         }
+//        TypeCheckingVisitor v = new TypeCheckingVisitor();
+//        p.jjtAccept(v, null);
         MiniJavaParserVisitor v = new MiniJavaPrinterVisitor();
         p.jjtAccept(v, null);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -203,17 +206,17 @@ void MethodDecl(List methods) #MethodDecl:
             <RETURN> Exp() ";"
      "}"
      {
-   for(var paramType : paramsTypes) {
-       jjtThis.addParamType(((ASTType) paramType).name);
-   }
-   for(var local : locals) {
-       jjtThis.addLocal((ASTVarDecl) local);
-   }
-   for(var paramName: paramNames) {
-       jjtThis.addParamName((String) paramName);
-   }
-   methods.add(jjtThis);
-}
+       for(var paramType : paramsTypes) {
+           jjtThis.addParamType(((ASTType) paramType).name);
+       }
+       for(var local : locals) {
+           jjtThis.addLocal((ASTVarDecl) local);
+       }
+       for(var paramName: paramNames) {
+           jjtThis.addParamName((String) paramName);
+       }
+       methods.add(jjtThis);
+     }
 }
 
 void FormalList(List types, List params):
@@ -265,31 +268,70 @@ void Statement():
     )
 }
 
-String Exp():
-{}
+ASTExp Exp():
 {
-    Condition()
+    ASTCondition condition;
+}
+{
+    condition = Condition()
     {
-        return "Exp";
+        jjtThis.cond = condition;
+        return jjtThis;
     }
 }
 
-void Condition():
-{}
+ASTCondition Condition():
 {
-    ExpLog() | "!" ExpLog()
+    ASTExpLog exp = null;
+}
+{
+    (
+        exp = ExpLog() { jjtThis.exp = exp; }
+        |
+        "!" exp = ExpLog() { jjtThis.notExp = exp; }
+    )
+    {
+        return jjtThis;
+    }
 }
 
-void ExpLog():
-{}
+ASTExpLog ExpLog():
 {
-    ExpRel() ExpLog2() | <TRUE> ExpLog2() | <FALSE> ExpLog2()
+    ASTExpRel rel = null;
+    ASTExpLog2 log = null;
+}
+{
+    (
+        rel = ExpRel() log = ExpLog2()
+        |
+        <TRUE> log = ExpLog2()
+        |
+        <FALSE> log = ExpLog2()
+    )
+    {
+        jjtThis.log = log;
+        jjtThis.rel = rel;
+        return jjtThis;
+    }
 }
 
-void ExpLog2():
-{}
+ASTExpLog2 ExpLog2():
 {
-    (OpLog() ExpRel() ExpLog2())?
+    ASTExpRel rel = null;
+}
+{
+    (
+        OpLog()
+        rel = ExpRel()
+        ExpLog2()
+        {
+            jjtThis.rel = rel;
+            return jjtThis;
+        }
+    )?
+    {
+        return null;
+    }
 }
 
 void OpLog():
@@ -298,10 +340,24 @@ void OpLog():
     "&&" | "||"
 }
 
-void ExpRel():
-{}
+ASTExpRel ExpRel():
 {
-    LOOKAHEAD(3) "(" Condition() ")" | ExpArm() (OpRel() ExpArm())?
+    ASTCondition cond = null;
+    ASTExpArm expArm = null;
+    ASTExpArm expArm2 = null;
+}
+{
+    (
+        LOOKAHEAD(3) "(" cond = Condition() ")"
+        |
+        expArm = ExpArm() (OpRel() expArm2 = ExpArm())?
+    )
+    {
+        jjtThis.cond = cond;
+        jjtThis.expArm = expArm;
+        jjtThis.expArm2 = expArm2;
+        return jjtThis;
+    }
 }
 
 void OpRel():
@@ -310,16 +366,39 @@ void OpRel():
     "==" | "!=" | "<" | ">" | "<=" | ">="
 }
 
-void ExpArm():
-{}
+ASTExpArm ExpArm():
 {
-    ExpTerm() ExpArm2()
+    ASTExpTerm term;
+    ASTExpArm2 arm;
+}
+{
+    term = ExpTerm() arm = ExpArm2()
+    {
+        jjtThis.term = term;
+        jjtThis.arm = arm;
+        return jjtThis;
+    }
 }
 
-void ExpArm2():
-{}
+ASTExpArm2 ExpArm2():
 {
-    (OpAd() ExpTerm() ExpArm2())?
+    ASTExpTerm term = null;
+    ASTExpArm2 arm = null;
+}
+{
+    (
+        OpAd()
+        term = ExpTerm()
+        arm = ExpArm2()
+        {
+            jjtThis.term = term;
+            jjtThis.arm = arm;
+            return jjtThis;
+        }
+    )?
+    {
+        return null;
+    }
 }
 
 void OpAd():
@@ -328,16 +407,40 @@ void OpAd():
     "+" | "-"
 }
 
-void ExpTerm():
-{}
+ASTExpTerm ExpTerm():
 {
-    ExpFact() ExpTerm2()
+    ASTExpFact fact;
+    ASTExpTerm2 term;
+}
+{
+    fact = ExpFact()
+    term = ExpTerm2()
+    {
+        jjtThis.fact = fact;
+        jjtThis.term = term;
+        return jjtThis;
+    }
 }
 
-void ExpTerm2():
-{}
+ASTExpTerm2 ExpTerm2():
 {
-    (OpMul() ExpFact() ExpTerm2())?
+    ASTExpFact fact = null;
+    ASTExpTerm2 term = null;
+}
+{
+    (
+        OpMul()
+        fact = ExpFact()
+        term = ExpTerm2()
+        {
+            jjtThis.fact = fact;
+            jjtThis.term = term;
+            return jjtThis;
+        }
+    )?
+    {
+        return null;
+    }
 }
 
 void OpMul():
@@ -346,63 +449,133 @@ void OpMul():
     "*" | "|"
 }
 
-void ExpFact():
-{}
+ASTExpFact ExpFact():
 {
-    <INTEGER> | "(" ExpArm() ")" | Access()
+    Token integer = null;
+    ASTExpArm expArm = null;
+    ASTAccess access = null;
+}
+{
+    (
+        integer = <INTEGER>
+        |
+        "("
+            expArm = ExpArm()
+        ")"
+        |
+        access = Access()
+    )
+    {
+        jjtThis.integer = integer;
+        jjtThis.expArm = expArm;
+        jjtThis.access = access;
+        return jjtThis;
+    }
 }
 
-void Access():
-{}
+ASTAccess Access():
 {
-    Call() ("[" ExpArm() "]")?
+    ASTCall call;
+    ASTExpArm exp = null;
+}
+{
+    call = Call() ("[" exp = ExpArm() "]")?
+    {
+        jjtThis.call = call;
+        jjtThis.exp = exp;
+        return jjtThis;
+    }
 }
 
-void Call():
-{}
+ASTCall Call():
 {
-    CallTarget() Call2()
+    ASTCallTarget target;
+    ASTCall2 call2;
+}
+{
+    target = CallTarget()
+    call2 = Call2()
+    {
+        jjtThis.target = target;
+        jjtThis.call2 = call2;
+        return jjtThis;
+    }
 }
 
-void Call2():
-{}
+ASTCall2 Call2():
+{
+    Token length = null;
+    Token id = null;
+    List argTypes = new ArrayList();
+    ASTCall2 call = null;
+}
 {
     (
         "."
         (
-            <LENGTH>
+            length = <LENGTH>
             |
-            <ID>
-            "(" (ExpList())? ")" Call2()
+            id = <ID>
+            "(" (ExpList(argTypes))? ")" call = Call2()
         )
+        {
+            jjtThis.length = length;
+            jjtThis.id = id;
+            jjtThis.argTypes = argTypes;
+            jjtThis.call = call;
+            return jjtThis;
+        }
     )?
+    {
+        return null;
+    }
 }
 
-void CallTarget():
-{}
+ASTCallTarget CallTarget():
 {
-    // TODO: distinction between local var and type
-    "new"
+    Token intArr = null;
+    ASTExpArm idxExp = null;
+    Token clsName = null;
+    Token localVar = null;
+    Token thiz = null;
+}
+{
     (
-        <INT> "[" ExpArm() "]"
+        "new"
+        (
+            intArr = <INT> "[" idxExp = ExpArm() "]"
+            |
+            clsName = <ID> "(" ")"
+
+        )
         |
-        <ID> "(" ")"
+        localVar = <ID>
+        |
+        thiz = <THIS>
     )
-    |
-    <ID>
-    |
-    <THIS>
+    {
+        jjtThis.intArr = intArr;
+        jjtThis.idxExp = idxExp;
+        jjtThis.clsName = clsName;
+        jjtThis.localVar = localVar;
+        jjtThis.thiz = thiz;
+        return jjtThis;
+    }
 }
 
-void ExpList():
-{}
+void ExpList(List types):
 {
-    Exp() (ExpRest())*
+    ASTExp exp;
+}
+{
+    exp = Exp() { types.add(exp.type); } (ExpRest(types))*
 }
 
-void ExpRest():
-{}
+void ExpRest(List types):
 {
-    "," Exp()
+    ASTExp exp;
+}
+{
+    "," exp = Exp() { types.add(exp.type); }
 }
 

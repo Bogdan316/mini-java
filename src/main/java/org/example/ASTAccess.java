@@ -4,6 +4,8 @@ package org.example;
 
 public
 class ASTAccess extends SimpleNode {
+  ASTCall call;
+  ASTExpArm exp;
   public ASTAccess(int id) {
     super(id);
   }

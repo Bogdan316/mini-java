@@ -4,6 +4,9 @@ package org.example;
 
 public
 class ASTCall extends SimpleNode {
+  ASTCallTarget target;
+  ASTCall2 call2;
+
   public ASTCall(int id) {
     super(id);
   }

@@ -2,22 +2,32 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package org.example;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public
 class ASTCall2 extends SimpleNode {
-  public ASTCall2(int id) {
-    super(id);
-  }
+    Token length;
+    Token id;
+    List<TypeId> argTypes = new ArrayList<>();
+    ASTCall2 call;
 
-  public ASTCall2(MiniJavaParser p, int id) {
-    super(p, id);
-  }
+    public ASTCall2(int id) {
+        super(id);
+    }
+
+    public ASTCall2(MiniJavaParser p, int id) {
+        super(p, id);
+    }
 
 
-  /** Accept the visitor. **/
-  public Object jjtAccept(MiniJavaParserVisitor visitor, Object data) {
+    /**
+     * Accept the visitor.
+     **/
+    public Object jjtAccept(MiniJavaParserVisitor visitor, Object data) {
 
-    return
-    visitor.visit(this, data);
-  }
+        return
+                visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=a1a46b95dd4a22c5c6be3cac544e3aad (do not edit this line) */
